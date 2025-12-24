@@ -74,17 +74,15 @@ with st.sidebar:
         st.caption(f"视频流媒体强度: **{video_intensity:.3f} kg CO₂/小时**")
         st.caption("_数据参考：IEA、Carbon Brief、网飞可持续发展报告_")
 
-        if "视频会议" in video_platform:
-            meeting_quality = st.select_slider(
-                "视频会议质量",
-                options=["音频优先", "平衡模式", "高清视频"],
-                value="平衡模式"
-            )
-            meeting_factor = {"音频优先": 0.2, "平衡模式": 0.5, "高清视频": 0.8}
-            meeting_intensity = 0.022 * meeting_factor[meeting_quality]  # 基准0.022 kg/h
-            st.caption(f"视频会议强度: **{meeting_intensity:.3f} kg CO₂/小时**")
-        else:
-            meeting_intensity = 0.022  # 默认值
+    with st.expander("📺 视频会议", expanded=False):
+        meeting_quality = st.select_slider(
+            "视频会议质量",
+            options=["音频优先", "平衡模式", "高清视频"],
+            value="平衡模式"
+        )
+        meeting_factor = {"音频优先": 0.2, "平衡模式": 0.5, "高清视频": 0.8}
+        meeting_intensity = 0.022 * meeting_factor[meeting_quality]  # 基准0.022 kg/h
+        st.caption(f"视频会议强度: **{meeting_intensity:.3f} kg CO₂/小时**")
 
     with st.expander("✈️ 旅行替代", expanded=False):
         travel_type = st.selectbox(
@@ -222,7 +220,6 @@ st.title("ICT产业碳足迹可视化评估")
 st.markdown("全球变化与人类活动 - 期末项目")
 
 col1, col2 = st.columns(2)
-temp = 0
 with col1:
     st.header("🔴 作为排放源")
 
@@ -237,7 +234,6 @@ with col1:
         phone_carbon = estimated_phone_carbon / phone_years
 
         st.session_state.total = video_carbon + meeting_carbon + phone_carbon
-        temp = meeting_carbon
 
         st.success(f"""
         **你的年数字碳足迹：{st.session_state.total:.1f} kg CO₂**
@@ -256,7 +252,7 @@ with col2:
     if st.button("计算减排潜力"):
         # 使用侧边栏参数
         flight_carbon = km * flight_factor
-        meeting_carbon = temp  # 假设2小时高质量视频会议
+        meeting_carbon = meetings * meeting_intensity * 52
         st.session_state.saving = flight_carbon - meeting_carbon
 
         st.info(f"""
